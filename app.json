@@ -25,8 +25,8 @@
       "description": "A random string for signing session cookies",
       "required": true
     },
-    "HOSTNAME": {
-      "description": "URL under which the site will be accessible (used to generate Google OAuth callbacks)",
+    "AUTHORITY": {
+      "description": "Authority under which the site will be accessible (used to generate Google OAuth callbacks)",
       "required": false,
       "value": "restricted-section.example.com"
     },

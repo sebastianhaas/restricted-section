@@ -19,17 +19,15 @@ app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, '/public'))
 
 app.set('port', (process.env.PORT || 3000))
-app.set('host', (process.env.HOSTNAME || "localhost"))
 app.set('protocol', (process.env.HOSTPROTOCOL || "http"))
 app.set('env', (process.env.NODE_ENV || "development"))
+app.set('authority', (process.env.AUTHORITY || `localhost:${app.get('port')}`))
 
 passport.use(new GoogleStrategy(
   {
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: `${ app.get("protocol") }://${ app.get("host") }${ 
-      app.get("env") == "development" ? `:${ app.get("port") }` : "" 
-    }/authenticate/google/callback`
+    callbackURL: `${ app.get('protocol') }://${ app.get('authority') }/authenticate/google/callback`
   },
   function(accessToken, refreshToken, profile, done) {
     if (allowedDomains.indexOf(profile._json.domain) > -1) {
@@ -61,7 +59,7 @@ app.use(passport.session())
 app.all('*', function(req, res, next) {
   if (app.get('protocol') === "https" 
     && req.headers['x-forwarded-proto'] != 'https' && app.get("env") !== 'development') {
-    res.redirect('https://' + app.get("host") + req.url)
+    res.redirect('https://' + app.get('authority') + req.url)
   } else {
     next()
   }
@@ -112,6 +110,6 @@ app.get('/authenticate/google/callback', function(req, res, next) {
   })(req, res, next);
 });
 
-app.listen(app.get('port'), function() { 
-  console.log(`Listening on http://${ app.get('host') }:${ app.get('port') }`) 
+var server = app.listen(app.get('port'), function() { 
+  console.log(`Listening on http://${ server.address().address }:${ server.address().port }`)
 })
